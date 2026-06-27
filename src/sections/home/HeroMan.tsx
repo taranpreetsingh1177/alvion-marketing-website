@@ -13,8 +13,8 @@ export function HeroMan() {
 
   useGSAP(() => {
     const man = wrapperRef.current;
-    const sectionThree = document.querySelector<HTMLElement>("#portfolio");
-    if (!man || !sectionThree) return;
+    const clipTrigger = document.querySelector<HTMLElement>("#solution");
+    if (!man || !clipTrigger) return;
 
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -36,7 +36,7 @@ export function HeroMan() {
       clipPath: "inset(100% 0 0% 0)",
       ease: "none",
       scrollTrigger: {
-        trigger: sectionThree,
+        trigger: clipTrigger,
         start: "top bottom",
         end: "top top",
         scrub: true,

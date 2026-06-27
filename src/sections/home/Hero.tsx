@@ -43,6 +43,7 @@ export function Hero() {
   return (
     <section
       ref={containerRef}
+      id="top"
       data-snap-section
       className="relative z-10 h-dvh overflow-visible px-6 md:px-10"
     >

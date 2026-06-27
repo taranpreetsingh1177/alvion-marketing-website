@@ -15,6 +15,19 @@ const SNAP_DELAY = 0.05;
 const NAV_DURATION = 0.8;
 const GESTURE_TOLERANCE = 14;
 
+function shouldLockSectionSnap(sections: HTMLElement[]): boolean {
+  const services = document.getElementById("services");
+  if (!services || services.dataset.accordionOpen !== "true") return false;
+
+  const servicesIndex = sections.indexOf(services);
+  if (servicesIndex < 0) return false;
+
+  return (
+    getNearestSectionIndex(sections) === servicesIndex &&
+    Math.abs(window.scrollY - services.offsetTop) < 80
+  );
+}
+
 function getNearestSectionIndex(
   sections: HTMLElement[],
   scrollY = window.scrollY,
@@ -61,7 +74,30 @@ export function ScrollSnap({ children }: { children: ReactNode }) {
       sections.forEach((section) => observer.observe(section));
       setActiveSectionId(sections[getNearestSectionIndex(sections)]?.id ?? null);
 
+      const onAnchorClick = (event: MouseEvent) => {
+        const link = (event.target as HTMLElement).closest('a[href^="#"]');
+        if (!link) return;
+
+        const href = link.getAttribute("href");
+        if (!href || href === "#") return;
+
+        const target = document.querySelector<HTMLElement>(href);
+        if (!target) return;
+
+        const sectionTarget = sections.includes(target)
+          ? target
+          : sections.find((section) => section.contains(target));
+
+        if (!sectionTarget) return;
+
+        event.preventDefault();
+        window.scrollTo({ top: sectionTarget.offsetTop, behavior: "smooth" });
+      };
+
+      document.addEventListener("click", onAnchorClick);
+
       return () => {
+        document.removeEventListener("click", onAnchorClick);
         observer.disconnect();
         document.documentElement.classList.remove("snap-y", "snap-mandatory");
       };
@@ -160,28 +196,67 @@ export function ScrollSnap({ children }: { children: ReactNode }) {
           ease: SNAP_EASE,
           overwrite: true,
           onComplete: () => {
-            snapTrigger.enable();
             isNavigating = false;
+            syncSnapLock();
           },
         });
       };
 
       const navigateBy = (direction: 1 | -1) => {
-        if (isNavigating) return;
+        if (isNavigating || shouldLockSectionSnap(sections)) return;
         scrollToSection(getNearestSectionIndex(sections) + direction);
       };
 
-      Observer.create({
+      let snapObserver: Observer | undefined;
+
+      const syncSnapLock = () => {
+        const locked = shouldLockSectionSnap(sections);
+        if (locked) {
+          snapObserver?.disable();
+          if (!isNavigating) snapTrigger.disable();
+        } else {
+          snapObserver?.enable();
+          if (!isNavigating) snapTrigger.enable();
+        }
+      };
+
+      snapObserver = Observer.create({
         target: window,
-        type: "wheel,touch,pointer",
+        type: "wheel,touch",
         tolerance: GESTURE_TOLERANCE,
-        preventDefault: true,
-        onDown: () => navigateBy(1),
-        onUp: () => navigateBy(-1),
+        preventDefault: false,
+        onDown: (self) => {
+          if (shouldLockSectionSnap(sections)) return;
+          self.event?.preventDefault();
+          navigateBy(1);
+        },
+        onUp: (self) => {
+          if (shouldLockSectionSnap(sections)) return;
+          self.event?.preventDefault();
+          navigateBy(-1);
+        },
       });
 
+      const servicesSection = document.getElementById("services");
+      const accordionObserver =
+        servicesSection &&
+        new MutationObserver(() => {
+          syncSnapLock();
+        });
+
+      accordionObserver?.observe(servicesSection!, {
+        attributes: true,
+        attributeFilter: ["data-accordion-open"],
+      });
+
+      const onAccordionChange = () => syncSnapLock();
+
+      window.addEventListener("scroll", syncSnapLock, { passive: true });
+      window.addEventListener("services-accordion-change", onAccordionChange);
+      syncSnapLock();
+
       const onKeyDown = (event: KeyboardEvent) => {
-        if (isNavigating) return;
+        if (isNavigating || shouldLockSectionSnap(sections)) return;
 
         const target = event.target;
         if (
@@ -238,11 +313,17 @@ export function ScrollSnap({ children }: { children: ReactNode }) {
         if (!href || href === "#") return;
 
         const target = document.querySelector<HTMLElement>(href);
-        if (!target || !sections.includes(target)) return;
+        if (!target) return;
+
+        const sectionTarget = sections.includes(target)
+          ? target
+          : sections.find((section) => section.contains(target));
+
+        if (!sectionTarget) return;
 
         event.preventDefault();
 
-        const index = sections.indexOf(target);
+        const index = sections.indexOf(sectionTarget);
         scrollToSection(index, NAV_DURATION, 0);
       };
 
@@ -260,6 +341,12 @@ export function ScrollSnap({ children }: { children: ReactNode }) {
       removeLayoutListeners = () => {
         window.removeEventListener("load", refreshLayout);
         window.removeEventListener("resize", refreshLayout);
+        window.removeEventListener("scroll", syncSnapLock);
+        window.removeEventListener(
+          "services-accordion-change",
+          onAccordionChange,
+        );
+        accordionObserver?.disconnect();
       };
 
       ScrollTrigger.refresh();

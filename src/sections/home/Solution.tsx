@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -20,7 +21,19 @@ const HEADING_WORDS = [
   { text: "grow.", highlight: false },
 ] as const;
 
-const PLACEHOLDER_COUNT = 5;
+const CLIENT_LOGOS = [
+  { name: "Bajaj", src: "/brand_logos/bajaj.png", width: 315, height: 210 },
+  { name: "CashKaro", src: "/brand_logos/cashkaro.png", width: 314, height: 209 },
+  {
+    name: "Masters' Union",
+    src: "/brand_logos/masters%20union.png",
+    width: 314,
+    height: 209,
+  },
+  { name: "Puma", src: "/brand_logos/puma.png", width: 314, height: 209 },
+  { name: "Unstop", src: "/brand_logos/unstop.png", width: 315, height: 209 },
+  { name: "Zyra", src: "/brand_logos/ZYRA.png", width: 315, height: 209 },
+] as const;
 
 export function Solution() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -73,7 +86,7 @@ export function Solution() {
 
       <div className="relative z-10 flex h-full flex-col justify-between px-10 py-12 text-foreground-light md:px-16 md:py-16">
         {/* ── Top: decorative mark + heading ── */}
-        <div>
+        <div className="pt-16 md:pt-20">
           <span
             className="mb-5 block text-2xl leading-none text-foreground-light/70 md:mb-8"
             aria-hidden="true"
@@ -115,14 +128,17 @@ export function Solution() {
             Our Previous Clients
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 md:gap-5 lg:flex-nowrap lg:justify-between lg:gap-6">
-            {Array.from({ length: PLACEHOLDER_COUNT }).map((_, i) => (
-              <div
-                key={i}
-                className="group flex h-14 w-[calc(50%-0.5rem)] items-center justify-center rounded-xl border border-white/30 bg-white/5 p-4 text-xs font-medium tracking-wide text-white/30 shadow-[0_4px_24px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.03] hover:border-white/45 hover:bg-white/10 hover:text-white/50 hover:shadow-[0_8px_32px_rgba(255,237,190,0.1)] sm:w-36 md:h-16 md:w-40 lg:w-auto lg:flex-1"
-                aria-label="Client logo placeholder"
-              >
-                Logo
+          <div className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3 md:gap-x-8 md:gap-y-6">
+            {CLIENT_LOGOS.map((logo) => (
+              <div key={logo.name} className="flex items-center justify-center">
+                <Image
+                  src={logo.src}
+                  alt={`${logo.name} logo`}
+                  width={logo.width}
+                  height={logo.height}
+                  unoptimized
+                  className="h-14 w-full max-w-[220px] scale-110 object-contain opacity-75 transition-opacity duration-300 hover:opacity-100 md:h-16 lg:h-20 lg:max-w-[260px]"
+                />
               </div>
             ))}
           </div>

@@ -1,11 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { isDarkSnapSection, useSnapSection } from "./SnapContext";
 
 const navLinks = [
   { label: "Services", href: "#services" },
-  { label: "Portfolio", href: "#portfolio" },
   { label: "Contact us", href: "#contact" },
 ];
 
@@ -18,12 +16,12 @@ export function Header() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 flex items-center justify-between px-6 py-6 md:px-10 md:py-8">
-      <Link
-        href="/"
-        className={`text-2xl font-semibold tracking-tight transition-colors duration-300 ${textClass}`}
+      <a
+        href="#top"
+        className={`cursor-pointer text-2xl font-semibold tracking-tight transition-opacity duration-300 hover:opacity-80 ${textClass}`}
       >
         Alvion<span className="text-primary">.</span>
-      </Link>
+      </a>
 
       <nav className="flex items-center gap-6 md:gap-8">
         {navLinks.map((link) => (

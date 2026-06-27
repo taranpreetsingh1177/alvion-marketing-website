@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 
-const DARK_SECTION_IDS = new Set(["solution", "services"]);
+const DARK_SECTION_IDS = new Set(["solution", "services", "contact"]);
 
 type SnapContextValue = {
   activeSectionId: string | null;

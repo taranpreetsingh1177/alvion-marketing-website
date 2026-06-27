@@ -1,9 +1,9 @@
 import {
+  Contact,
   Header,
   Hero,
   HeroMan,
   NoiseProblem,
-  Portfolio,
   ScrollSnap,
   Services,
   Solution,
@@ -17,8 +17,8 @@ export default function Home() {
         <Hero />
         <NoiseProblem />
         <Solution />
-        <Portfolio />
         <Services />
+        <Contact />
       </main>
       <HeroMan />
     </ScrollSnap>

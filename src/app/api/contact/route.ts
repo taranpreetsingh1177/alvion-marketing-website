@@ -1,5 +1,6 @@
-import { Resend } from "resend";
 import { NextResponse } from "next/server";
+import { sendContactEmails } from "@/lib/email/send";
+import { isEmailConfigured } from "@/lib/email/smtp";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -43,46 +44,18 @@ export async function POST(request: Request) {
     );
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error("RESEND_API_KEY is not configured");
+  if (!isEmailConfigured()) {
+    console.error("SMTP is not configured (SMTP_HOST, SMTP_USER, SMTP_PASS)");
     return NextResponse.json(
       { error: "Unable to send message. Please try again later." },
       { status: 500 },
     );
   }
 
-  const fromEmail =
-    process.env.RESEND_FROM_EMAIL ?? "Alvion Contact <onboarding@resend.dev>";
-  const toEmail = process.env.CONTACT_TO_EMAIL ?? "office@alvion.in";
-
-  const resend = new Resend(apiKey);
-
-  const { error } = await resend.emails.send({
-    from: fromEmail,
-    to: toEmail,
-    replyTo: email,
-    subject: `New contact from ${name}`,
-    text: [
-      "New contact form submission",
-      "",
-      `Name: ${name}`,
-      `Email: ${email}`,
-      "",
-      "Message:",
-      message,
-    ].join("\n"),
-    html: `
-      <h2>New contact form submission</h2>
-      <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-      <p><strong>Email:</strong> <a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a></p>
-      <p><strong>Message:</strong></p>
-      <p>${escapeHtml(message).replace(/\n/g, "<br>")}</p>
-    `,
-  });
-
-  if (error) {
-    console.error("Resend error:", error);
+  try {
+    await sendContactEmails({ name, email, message });
+  } catch (error) {
+    console.error("Email send error:", error);
     return NextResponse.json(
       { error: "Unable to send message. Please try again later." },
       { status: 500 },
@@ -90,13 +63,4 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ success: true });
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
 }
