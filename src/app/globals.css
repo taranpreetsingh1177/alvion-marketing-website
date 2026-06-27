@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Clash Display";
+  src: url("/ClashDisplay_Complete/Fonts/WEB/fonts/ClashDisplay-Variable.woff2")
+    format("woff2");
+  font-weight: 200 700;
+  font-display: swap;
+  font-style: normal;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary: #ca0013;
+  --background: #eeebe3;
+  --background-dark: #1d1d1d;
+  --foreground: #1d1d1d;
+  --foreground-light: #eeebe3;
 }
 
 @theme inline {
+  --color-primary: var(--primary);
   --color-background: var(--background);
+  --color-background-dark: var(--background-dark);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-light: var(--foreground-light);
+  --font-sans: var(--font-inter);
+  --font-poppins: var(--font-poppins);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html {
+  scroll-behavior: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  [data-snap-section] {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.hero-text-grunge {
+  font-family: "Clash Display", var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+.hero-text-grunge .hero-char {
+  background-image:
+    linear-gradient(var(--primary), var(--primary)),
+    url("/grunge-texture.png");
+  background-size: auto, 200%;
+  background-position: center, center;
+  /* scroll (not fixed) — fixed attachment decouples from CSS transforms,
+     causing visible glitching during GSAP y/opacity animations */
+  background-attachment: scroll, scroll;
+  background-blend-mode: normal, multiply;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Solution section — explicit light text on dark background */
+.solution-section {
+  color: var(--foreground-light);
+}
+
+.solution-section h2,
+.solution-section .s3-word {
+  color: var(--foreground-light);
+}
+
+.solution-section .s3-word--highlight {
+  color: #ffedbe;
 }

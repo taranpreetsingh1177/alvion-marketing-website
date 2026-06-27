@@ -1,0 +1,9 @@
+export { Services } from "./Services";
+export { Header } from "./Header";
+export { Hero } from "./Hero";
+export { HeroMan } from "./HeroMan";
+export { NoiseProblem } from "./NoiseProblem";
+export { Portfolio } from "./Portfolio";
+export { ScrollSnap } from "./ScrollSnap";
+export { Solution } from "./Solution";
+export { SnapSection } from "./SnapSection";
